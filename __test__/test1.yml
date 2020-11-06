@@ -1,0 +1,7 @@
+---
+app:
+  msg: hello
+  age: 13
+  roles: []
+  permissions: 
+    - read

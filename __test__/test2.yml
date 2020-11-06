@@ -1,0 +1,15 @@
+###################
+# TEST PROPERTIES
+###################
+
+app:
+  msg: good morning
+  name: Steven
+  roles:
+    - test1
+    - test2
+  permissions:
+    - write
+  
+onther-key:
+  test: true
