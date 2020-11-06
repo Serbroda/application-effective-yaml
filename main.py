@@ -3,17 +3,19 @@ import os
 import sys
 
 import hiyapyco
+import zipfile
 
 args = {}
 
 
 def get_args():
     args["cwd"] = os.getcwd()
+    args["extract"] = False
 
     full_args = sys.argv
     arg_list = full_args[1:]
-    short_opts = "hf:"
-    long_opts = ["help", "files="]
+    short_opts = "hf:j:eo:"
+    long_opts = ["help", "files=", "jar-files=", "extract" "out-dir="]
 
     arguments, values = getopt.getopt(arg_list, short_opts, long_opts)
 
@@ -23,33 +25,64 @@ def get_args():
             exit(2)
         elif current_arg in ("-f", "--files"):
             args["files"] = current_value.split(",")
+        elif current_arg in ("-j", "--jar-files"):
+            args["jar-files"] = current_value.split(",")
+        elif current_arg in ("-e", "--extract"):
+            args["extract"] = True
+        elif current_arg in ("-o", "--out-dir"):
+            args["out"] = current_value
+
+    if "out" not in args:
+        args["out"] = args["cwd"]
 
     return args
 
 
 def read_file(path):
-    with open(path, 'r') as file:
-        return file.read()
+    with open(path, 'r') as f:
+        return f.read()
 
 
-def merge_yamls(fileContens):
-    merged_yaml = hiyapyco.load(fileContens)
+def read_file_in_jar(jar_file, name):
+    file_content = ""
+    with zipfile.ZipFile(jar_file, 'r') as jarzip:
+        try:
+            lst = jarzip.infolist()
+            for zi in lst:
+                fn = zi.filename
+                if fn.endswith(name):
+                    with jarzip.open(fn) as jarzipfile:
+                        file_content = jarzipfile.read()
+                        if args["extract"]:
+                            with open(os.path.join(args["out"], name), "wb") as of:
+                                of.write(file_content)
+
+        finally:
+            jarzip.close()
+
+    return file_content
+
+
+def merge_yamls(file_contens):
+    merged_yaml = hiyapyco.load(file_contens)
     return hiyapyco.dump(merged_yaml)
 
 
 def main():
+    global args
     args = get_args()
     yaml_contents = []
+
+    for f in args["jar-files"]:
+        jar_file_split = f.split(':')
+        jar_file = os.path.join(args["cwd"], jar_file_split[0])
+        yaml_contents.append(read_file_in_jar(jar_file, jar_file_split[1]))
 
     for f in args["files"]:
         file_path = os.path.join(args["cwd"], f)
         yaml_contents.append(read_file(file_path))
 
-    print(yaml_contents)
-    # print(merge_yamls([
-    #     read_file('./__test__/test1.yml'),
-    #     read_file('./__test__/test2.yml')
-    # ]))
+    print(merge_yamls(yaml_contents))
 
 
 if __name__ == "__main__":

@@ -1,4 +1,6 @@
 ---
+application:
+  msg: hello from test1.yml
 app:
   msg: hello
   age: 13
