@@ -113,7 +113,11 @@ def main():
             file_path = os.path.join(args["cwd"], f)
             yaml_contents.append(read_file(file_path))
 
-    print(merge_yamls(yaml_contents))
+    if len(yaml_contents) > 0:
+        print(merge_yamls(yaml_contents))
+    else:
+        print("No content found or specified")
+        exit(1)
 
 
 if __name__ == "__main__":
