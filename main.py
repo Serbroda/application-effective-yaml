@@ -32,7 +32,7 @@ def get_args():
             print("  -f FILE_LIST, --files FILE_LIST")
             print("                        comma separated list of yaml files. order matters!")
             print("  -j FILE_IN_JAR_LIST, --jar-files FILES_IN_JAR_LIST")
-            print("                        comma separated list of yaml files specified in a jar (e.g test.jar:application.yml). order matters!")
+            print("                        comma separated list of yaml files specified inside a jar (e.g test.jar:application.yml). order matters!")
             print("  -e, --extract         extracts the files specified in -j argument")
             print("  -o DIRECTORY, --out-dir DIRECTORY")
             print("                        output directory to extract the files in (default=cwd)")
@@ -42,10 +42,10 @@ def get_args():
             print("# get content of two merged yamls")
             print("application-effective-yaml.py -f test1.yml,test2.yml")
             print
-            print("# get content of two files in a jar")
+            print("# get content of two files inside a jar")
             print("application-effective-yaml.py -j ./test.jar:application.yml,./test.jar:application-test.yml")
             print
-            print("# get content of a file in a jar and local file and extract the file from jar")
+            print("# get content of a file inside a jar and local file and extract the file from jar")
             print("application-effective-yaml.py -j ./test.jar:application.yml -f ./test1.yml -e")
             print
             print("# extract a file from a jar to the sub directory test")
