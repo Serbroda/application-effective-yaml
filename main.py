@@ -16,8 +16,8 @@ def get_args():
 
     full_args = sys.argv
     arg_list = full_args[1:]
-    short_opts = "chf:j:eo:s"
-    long_opts = ["cwd", "help", "files=", "jar-files=", "extract" "out-dir=", "strict-order"]
+    short_opts = "chf:j:eo:st:"
+    long_opts = ["cwd", "help", "files=", "jar-files=", "out=", "extract", "target-dir", "strict-order"]
 
     arguments, values = getopt.getopt(arg_list, short_opts, long_opts)
 
@@ -54,7 +54,7 @@ def get_args():
             print("  application-effective-yaml.py -j ./test.jar:application.yml -f ./test1.yml -e")
             print
             print("  # extract a file from a jar to the sub directory test")
-            print("  application-effective-yaml.py -j ./test.jar:application.yml -e -o ./test/")
+            print("  application-effective-yaml.py -j ./test.jar:application.yml -e -t ./test/")
             print
             exit(0)
         elif current_arg in ("-f", "--files"):

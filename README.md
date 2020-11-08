@@ -46,7 +46,7 @@ application-effective-yaml.py -j ./test.jar:application.yml,./test.jar:applicati
 application-effective-yaml.py -j ./test.jar:application.yml -f ./test1.yml -e
 
 # extract a file from a jar to the sub directory test
-application-effective-yaml.py -j ./test.jar:application.yml -e -o ./test/
+application-effective-yaml.py -j ./test.jar:application.yml -e -t ./test/
 ```
 
 ## Real world example
