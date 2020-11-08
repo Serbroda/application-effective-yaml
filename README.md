@@ -115,4 +115,5 @@ application:
   -t DIRECTORY, --target-dir DIRECTORY
                         target directory to extract the files in (default=cwd)
   -s, --strict-order    by default the jar files will always be taken before the local files. If the strict-order is set the files which are passed first will merge first
+  -i, --ignore-errors   ignore errors like file not found
 ```

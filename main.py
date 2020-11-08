@@ -12,12 +12,13 @@ def get_args():
     args["cwd"] = os.getcwd()
     args["extract"] = False
     args["strict-order"] = False
+    args["ignore-errors"] = False
     args["args-passed-direction"] = "UNKNOWN"
 
     full_args = sys.argv
     arg_list = full_args[1:]
-    short_opts = "chf:j:eo:st:"
-    long_opts = ["cwd", "help", "files=", "jar-files=", "out=", "extract", "target-dir", "strict-order"]
+    short_opts = "chf:j:eo:st:i"
+    long_opts = ["cwd", "help", "files=", "jar-files=", "out=", "extract", "target-dir", "strict-order", "ignore-errors"]
 
     arguments, values = getopt.getopt(arg_list, short_opts, long_opts)
 
@@ -42,6 +43,7 @@ def get_args():
             print("                        target directory to extract the files in (default=cwd)")
             print("  -s, --strict-order    by default the jar files will always be taken before the local files. "
                   "If the strict-order is set the files which are passed first will merge first")
+            print("  -i, --ignore-errors   ignore errors like file not found")
             print
             print("examples:")
             print("  # get content of two merged yamls and write to result.yml")
@@ -73,6 +75,8 @@ def get_args():
             args["target"] = current_value
         elif current_arg in ("-s", "--strict-order"):
             args["strict-order"] = True
+        elif current_arg in ("-i", "--ignore-errors"):
+            args["ignore-errors"] = True
 
     if "target" not in args:
         args["target"] = args["cwd"]
@@ -116,7 +120,10 @@ def read_jar_contents():
         for f in args["jar-files"]:
             jar_file_split = f.split(':')
             jar_file = os.path.join(args["cwd"], jar_file_split[0])
-            contents.append(read_file_in_jar(jar_file, jar_file_split[1]))
+            if os.path.isfile(jar_file):
+                contents.append(read_file_in_jar(jar_file, jar_file_split[1]))
+            elif not args["ignore-errors"]:
+                raise Exception("File '{}' not found".format(f))
     return contents
 
 
@@ -125,7 +132,10 @@ def read_file_contents():
     if "files" in args:
         for f in args["files"]:
             file_path = os.path.join(args["cwd"], f)
-            contents.append(read_file(file_path))
+            if os.path.isfile(file_path):
+                contents.append(read_file(file_path))
+            elif not args["ignore-errors"]:
+                raise Exception("File '{}' not found".format(f))
     return contents
 
 
