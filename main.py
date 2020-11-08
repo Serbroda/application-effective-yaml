@@ -93,7 +93,7 @@ def read_file_in_jar(jar_file, name):
 
 
 def merge_yamls(file_contens):
-    merged_yaml = hiyapyco.load(file_contens)
+    merged_yaml = hiyapyco.load(file_contens, method=hiyapyco.METHOD_MERGE)
     return hiyapyco.dump(merged_yaml)
 
 
