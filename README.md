@@ -49,32 +49,68 @@ application-effective-yaml.py -j ./test.jar:application.yml -f ./test1.yml -e
 application-effective-yaml.py -j ./test.jar:application.yml -e -o ./test/
 ```
 
-Example output:
+## Real world example
+
+Command:
+````shell script
+application-effective-yaml.py -j my-test-app.jar:application.yml -f application-prod.yml  
+````
+
+Yaml inside a spring-boot jar:
+```yaml
+spring:
+  application:
+    name: my-test-app
+  datasource:
+    username: sa
+    password:
+    url: jdbc:h2:mem:test
+    driver-class-name: org.h2.Driver
+
+application:
+  welcome-msg: Hello world
+```
+<small style="color: grey;">my-test-app.jar:application.yml</small>
+
+Yaml to overwrite properties in production profile:
+```yaml
+spring:
+  profiles: production
+  datasource:
+    username: mysql_prod
+    password: S3cret!
+    url: jdbc:mysql://localhost:3306/test
+    driver-class-name: com.mysql.jdbc.Driver
+```
+<small style="color: grey;">application-prod.yml</small>
+
+Result: 
 
 ```yaml
+spring:
+  application:
+    name: my-test-app
+  datasource:
+    username: mysql_prod
+    password: S3cret!
+    url: jdbc:mysql://localhost:3306/test
+    driver-class-name: com.mysql.jdbc.Driver
+  profiles: production
 application:
-  msg: hello from test1.yml
-app:
-  msg: good morning
-  name: John
-  roles:
-  - test1
-  - test2
-  permissions: []
-onther-key:
-  test: true
+  welcome-msg: Hello world
 ```
-## Arguments
+
+## Command line arguments
 
 ```
-  -c DIRECTORY, --cwd DIRECTORY
+-c DIRECTORY, --cwd DIRECTORY
                         current working directory
-  -h, --help            show this help message end exit
-  -f FILE_LIST, --files FILE_LIST
+-h, --help            show this help message end exit
+-f FILE_LIST, --files FILE_LIST
                         comma separated list of yaml files. order matters!
-  -j FILE_IN_JAR_LIST, --jar-files FILES_IN_JAR_LIST
+-j FILE_IN_JAR_LIST, --jar-files FILES_IN_JAR_LIST
                         comma separated list of yaml files specified inside a jar (e.g test.jar:application.yml). order matters!
-  -e, --extract         extracts the files specified in -j argument
-  -o DIRECTORY, --out-dir DIRECTORY
+-e, --extract         extracts the files specified in -j argument
+-o DIRECTORY, --out-dir DIRECTORY
                         output directory to extract the files in (default=cwd)
 ```
