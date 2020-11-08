@@ -11,11 +11,13 @@ args = {}
 def get_args():
     args["cwd"] = os.getcwd()
     args["extract"] = False
+    args["strict-order"] = False
+    args["args-passed-direction"] = "UNKNOWN"
 
     full_args = sys.argv
     arg_list = full_args[1:]
-    short_opts = "chf:j:eo:"
-    long_opts = ["cwd", "help", "files=", "jar-files=", "extract" "out-dir="]
+    short_opts = "chf:j:eo:s"
+    long_opts = ["cwd", "help", "files=", "jar-files=", "extract" "out-dir=", "strict-order"]
 
     arguments, values = getopt.getopt(arg_list, short_opts, long_opts)
 
@@ -30,36 +32,44 @@ def get_args():
             print("                        current working directory")
             print("  -h, --help            show this help message end exit")
             print("  -f FILE_LIST, --files FILE_LIST")
-            print("                        comma separated list of yaml files. order matters!")
+            print("                        comma separated list of yaml files. Order matters!")
             print("  -j FILE_IN_JAR_LIST, --jar-files FILES_IN_JAR_LIST")
-            print("                        comma separated list of yaml files specified inside a jar (e.g test.jar:application.yml). order matters!")
+            print("                        comma separated list of yaml files specified inside a jar "
+                  "(e.g test.jar:application.yml). Order matters!")
             print("  -e, --extract         extracts the files specified in -j argument")
             print("  -o DIRECTORY, --out-dir DIRECTORY")
             print("                        output directory to extract the files in (default=cwd)")
+            print("  -s, --strict-order    by default the jar files will always be taken before the local files. "
+                  "If the strict-order is set the files which are passed first will merge first")
             print
             print("examples:")
+            print("  # get content of two merged yamls")
+            print("  application-effective-yaml.py -f test1.yml,test2.yml")
             print
-            print("# get content of two merged yamls")
-            print("application-effective-yaml.py -f test1.yml,test2.yml")
+            print("  # get content of two files inside a jar")
+            print("  application-effective-yaml.py -j ./test.jar:application.yml,./test.jar:application-test.yml")
             print
-            print("# get content of two files inside a jar")
-            print("application-effective-yaml.py -j ./test.jar:application.yml,./test.jar:application-test.yml")
+            print("  # get content of a file inside a jar and local file and extract the file from jar")
+            print("  application-effective-yaml.py -j ./test.jar:application.yml -f ./test1.yml -e")
             print
-            print("# get content of a file inside a jar and local file and extract the file from jar")
-            print("application-effective-yaml.py -j ./test.jar:application.yml -f ./test1.yml -e")
-            print
-            print("# extract a file from a jar to the sub directory test")
-            print("application-effective-yaml.py -j ./test.jar:application.yml -e -o ./test/")
+            print("  # extract a file from a jar to the sub directory test")
+            print("  application-effective-yaml.py -j ./test.jar:application.yml -e -o ./test/")
             print
             exit(0)
         elif current_arg in ("-f", "--files"):
             args["files"] = current_value.split(",")
+            if args["args-passed-direction"] == "UNKNOWN":
+                args["args-passed-direction"] = "FILES"
         elif current_arg in ("-j", "--jar-files"):
             args["jar-files"] = current_value.split(",")
+            if args["args-passed-direction"] == "UNKNOWN":
+                args["args-passed-direction"] = "JARS"
         elif current_arg in ("-e", "--extract"):
             args["extract"] = True
         elif current_arg in ("-o", "--out-dir"):
             args["out"] = current_value
+        elif current_arg in ("-s", "--strict-order"):
+            args["strict-order"] = True
 
     if "out" not in args:
         args["out"] = args["cwd"]
@@ -97,21 +107,40 @@ def merge_yamls(file_contens):
     return hiyapyco.dump(merged_yaml)
 
 
-def main():
-    global args
-    args = get_args()
-    yaml_contents = []
-
+def read_jar_contents():
+    contents = []
     if "jar-files" in args:
         for f in args["jar-files"]:
             jar_file_split = f.split(':')
             jar_file = os.path.join(args["cwd"], jar_file_split[0])
-            yaml_contents.append(read_file_in_jar(jar_file, jar_file_split[1]))
+            contents.append(read_file_in_jar(jar_file, jar_file_split[1]))
+    return contents
 
+
+def read_file_contents():
+    contents = []
     if "files" in args:
         for f in args["files"]:
             file_path = os.path.join(args["cwd"], f)
-            yaml_contents.append(read_file(file_path))
+            contents.append(read_file(file_path))
+    return contents
+
+
+def read_all_contents():
+    contents = []
+    if args["strict-order"] and args["args-passed-direction"] == "FILES":
+        contents.append(read_file_contents())
+        contents.append(read_jar_contents())
+    else:
+        contents.append(read_jar_contents())
+        contents.append(read_file_contents())
+    return contents
+
+
+def main():
+    global args
+    args = get_args()
+    yaml_contents = read_all_contents()
 
     if len(yaml_contents) > 0:
         print(merge_yamls(yaml_contents))
