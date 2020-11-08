@@ -36,8 +36,8 @@ sudo python setup.py install
 Some simple examples:
 
 ```shell script
-# get content of two merged yamls
-application-effective-yaml.py -f test1.yml,test2.yml
+# get content of two merged yamls and write to result.yml
+application-effective-yaml.py -f test1.yml,test2.yml -o result.yml
 
 # get content of two files inside a jar
 application-effective-yaml.py -j ./test.jar:application.yml,./test.jar:application-test.yml
@@ -103,14 +103,16 @@ application:
 ## Command line arguments
 
 ```
--c DIRECTORY, --cwd DIRECTORY
+  -c DIRECTORY, --cwd DIRECTORY
                         current working directory
--h, --help            show this help message end exit
--f FILE_LIST, --files FILE_LIST
-                        comma separated list of yaml files. order matters!
--j FILE_IN_JAR_LIST, --jar-files FILES_IN_JAR_LIST
-                        comma separated list of yaml files specified inside a jar (e.g test.jar:application.yml). order matters!
--e, --extract         extracts the files specified in -j argument
--o DIRECTORY, --out-dir DIRECTORY
-                        output directory to extract the files in (default=cwd)
+  -h, --help            show this help message end exit
+  -f FILE_LIST, --files FILE_LIST
+                        comma separated list of yaml files. Order matters!
+  -j FILE_IN_JAR_LIST, --jar-files FILES_IN_JAR_LIST
+                        comma separated list of yaml files specified inside a jar (e.g test.jar:application.yml). Order matters!
+  -o FILE, --out FILE   create output file with merged results
+  -e, --extract         extracts the files specified in -j argument
+  -t DIRECTORY, --target-dir DIRECTORY
+                        target directory to extract the files in (default=cwd)
+  -s, --strict-order    by default the jar files will always be taken before the local files. If the strict-order is set the files which are passed first will merge first
 ```

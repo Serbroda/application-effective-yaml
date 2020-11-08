@@ -36,15 +36,16 @@ def get_args():
             print("  -j FILE_IN_JAR_LIST, --jar-files FILES_IN_JAR_LIST")
             print("                        comma separated list of yaml files specified inside a jar "
                   "(e.g test.jar:application.yml). Order matters!")
+            print("  -o FILE, --out FILE   create output file with merged results")
             print("  -e, --extract         extracts the files specified in -j argument")
-            print("  -o DIRECTORY, --out-dir DIRECTORY")
-            print("                        output directory to extract the files in (default=cwd)")
+            print("  -t DIRECTORY, --target-dir DIRECTORY")
+            print("                        target directory to extract the files in (default=cwd)")
             print("  -s, --strict-order    by default the jar files will always be taken before the local files. "
                   "If the strict-order is set the files which are passed first will merge first")
             print
             print("examples:")
-            print("  # get content of two merged yamls")
-            print("  application-effective-yaml.py -f test1.yml,test2.yml")
+            print("  # get content of two merged yamls and write to result.yml")
+            print("  application-effective-yaml.py -f test1.yml,test2.yml -o result.yml")
             print
             print("  # get content of two files inside a jar")
             print("  application-effective-yaml.py -j ./test.jar:application.yml,./test.jar:application-test.yml")
@@ -64,15 +65,17 @@ def get_args():
             args["jar-files"] = current_value.split(",")
             if args["args-passed-direction"] == "UNKNOWN":
                 args["args-passed-direction"] = "JARS"
+        elif current_arg in ("-o", "--out"):
+            args["out"] = current_value
         elif current_arg in ("-e", "--extract"):
             args["extract"] = True
-        elif current_arg in ("-o", "--out-dir"):
-            args["out"] = current_value
+        elif current_arg in ("-t", "--target-dir"):
+            args["target"] = current_value
         elif current_arg in ("-s", "--strict-order"):
             args["strict-order"] = True
 
-    if "out" not in args:
-        args["out"] = args["cwd"]
+    if "target" not in args:
+        args["target"] = args["cwd"]
 
     return args
 
@@ -93,7 +96,7 @@ def read_file_in_jar(jar_file, name):
                     with jarzip.open(fn) as jarzipfile:
                         file_content = jarzipfile.read()
                         if args["extract"]:
-                            with open(os.path.join(args["out"], name), "wb") as of:
+                            with open(os.path.join(args["target"], name), "wb") as of:
                                 of.write(file_content)
 
         finally:
@@ -143,7 +146,11 @@ def main():
     yaml_contents = read_all_contents()
 
     if len(yaml_contents) > 0:
-        print(merge_yamls(yaml_contents))
+        merged_result = merge_yamls(yaml_contents)
+        print(merged_result)
+        if "out" in args:
+            with open(os.path.join(args["cwd"], args["out"]), "wb") as of:
+                of.write(merged_result)
     else:
         print("No content found or specified")
         exit(1)
