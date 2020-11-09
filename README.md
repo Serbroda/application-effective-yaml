@@ -2,9 +2,9 @@
 
 [![license](https://img.shields.io/github/license/Serbroda/application-effective-yaml.svg)](https://github.com/Serbroda/application-effective-yaml/blob/master/LICENSE.txt)
 
-A simple python app to merge multiple yamls files to get the effective content.
+A simple python script to merge multiple yaml files to get the effective content.
 
-The intention to develop was to view the effectively used properties by a spring java applaction which uses multiple yaml based config locations.
+The intention to develop this script was to view the effectively used properties by a spring java applaction which uses multiple yaml based config locations.
 
 ## Key Features
 
