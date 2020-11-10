@@ -28,7 +28,7 @@ https://github.com/Serbroda/application-effective-yaml
 ```
 git clone https://github.com/Serbroda/application-effective-yaml.git
 cd application-effective-yaml
-sudo python setup.py install
+sudo ./build.sh
 ```
 
 ## Usage
